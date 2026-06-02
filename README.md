@@ -1,55 +1,86 @@
-# Exchange Rate Dashboard - Data Source Information
+# 🌐 Aurora Tech Chromebook & GPU AI Supply Chain Platform (Project: Atomic-Link)
 
-This document details the configuration, integrations, and architecture of the data sources deployed in the **Exchange Rate Dashboard** application. The dashboard aggregates, processes, and displays foreign exchange rates against the Euro (EUR) from multiple financial endpoints, open APIs, and official central bank interfaces. 
+> **🎓 RNCP 38777 AI Architect Master Defense Portfolio & Code Repository**
+>
+> This portfolio represents the complete, production-grade technical implementation and defense materials for Project: Atomic-Link, deployed at the fictional multinational hardware OEM, Aurora Tech Computing Group.
 
-## 1. Primary Data Sources (Standard Currencies)
+---
 
-For standard daily and historical fiat currencies, the application queries highly reliable open financial APIs.
+## 🛠️ Enterprise Tech Stack
+- **Data Governance (Bloc 1):** SSOT, RBAC, GDPR Compliance Auditing.
+- **Infrastructure (Bloc 2):** Docker, Terraform, PostgreSQL (Star Schema).
+- **Data Pipelines (Bloc 3):** Apache Airflow, dbt, Python, Frankfurter API.
+- **AI & MLOps (Bloc 4):** Scikit-Learn (Random Forest), FastAPI, GitHub Actions (CI/CD).
+- **Frontend & Web3:** Streamlit, Simulated Ethereum Smart Contract Hooks.
 
-* **Frankfurter API (`api.frankfurter.app` / `api.frankfurter.dev`)**
-  * **Usage:** Acts as the primary data source for querying the bulk of historical and daily exchange rates against the Euro.
-  * **Origin:** Data is directly modeled after the reference rates published by the European Central Bank (ECB).
-* **ExchangeRate-API (`open.er-api.com/v6/latest/EUR`)**
-  * **Usage:** Serves as a reliable secondary fetcher to quickly obtain the latest cross-currency rates if precise date-matching requires a fallback.
-* **Currency-API CDN (`cdn.jsdelivr.net/npm/@fawazahmed0/currency-api`)**
-  * **Usage:** Heavily utilized for obtaining accurate historical "Calibration Data" over specific monthly / daily boundaries. It ensures that the database generation spans accurately through past months without rate limiting issues.
+---
 
-## 2. Central Bank APIs and Scraping (Regional Currencies)
+## 🎯 Executive Summary & Business Context
 
-To ensure strict compliance and accuracy for regional currencies, the system connects directly to the official digital portals of respective central banks. Since central banks heavily enforce CORS (Cross-Origin Resource Sharing) restrictions, the app initiates a **sequential fallback proxy mechanism** to guarantee uninterrupted connectivity in the browser environment.
+In the high-stakes hardware manufacturing sector, **Aurora Tech** faces critical profit margin compression on its flagship Chromebooks and AI Workstation (NVIDIA GPU) product lines. This volatility is driven by two intersecting forces:
+1. **Macroeconomic Currency Exposure:** Extreme fluctuations between EUR, USD, and TWD.
+2. **Supply Chain Disruptions:** Global shipping delays bottlenecking critical silicon and components.
 
-* **Moroccan Dirham (MAD) | Bank Al-Maghrib (BKAM)**
-  * **Primary Method:** Directly hits the official JSON API (`api.centralbankofmorocco.ma/cours/Version1/api/CoursBBE`).
-  * **Fallback Scheme:** If the official JSON API rejects the request, the application performs dedicated HTML web scraping on the BKAM Website (`bkam.ma/Marches/...`). It scans table elements specifically for "Euro" and mathematically extracts the valid average ("Moyenne") rate.
-* **Uzbekistani Som (UZS) | Central Bank of Uzbekistan (CBU)**
-  * **Source:** Official CBU JSON API (`cbu.uz/en/arkhiv-kursov-valyut/json/EUR/{date}`).
-  * **Strategy:** Reads structured date-based arrays and maps the returned `Rate` attribute natively. 
-* **Kazakhstani Tenge (KZT) | National Bank of Kazakhstan (NBK)**
-  * **Source:** NBK Official Web Portal (`nationalbank.kz/en/exchangerates/...`).
-  * **Strategy:** Employs targeted HTML web-scraping logic. Validates the required string date matches the requested date, scopes into table rows (`<tr>`), filters columns for "EUR" or "Euro", and extracts precise decimal conversions.
+**Project: Atomic-Link** is an end-to-end AI platform designed to unify real-time FX tracking with physical logistics data. The system predicts gross margin degradation before it happens and prescribes automated, actionable mitigation strategies.
 
-## 3. Officially Pegged Currencies
+---
 
-Certain global currencies are strictly pegged to the United States Dollar (USD). The application implements static formulas to maintain mathematical perfection when calculating Euro rates for these markets, eliminating arbitrary market floating errors:
+## 🚀 Core Business Use Cases & Strategies
 
-* **United Arab Emirates Dirham (AED):** Pegged firmly at `3.6725`
-* **Saudi Riyal (SAR):** Pegged firmly at `3.75`
+### 1. Ocean-to-Air Logistics Conversion
+When critical components (e.g., NVIDIA H100 GPUs) are delayed at sea beyond a 10-day threshold, the AI engine simulates and recommends expediting cargo via Air France Cargo to Paris CDG. 
+* **Impact:** Cuts transit delay from 12 days to 2 days.
+* **Trade-off:** Increases freight costs from a standard €5 to €45 per unit. The system dynamically calculates if preventing the delay outweighs the sudden spike in logistics OPEX.
 
-## 4. Resilient Proxy Fallback Strategy
+### 2. Web3 Smart Contract Hedging & USDC Settlement
+As a highly forward-looking strategic scaling path, the platform introduces a Web3 settlement framework.
+* **Trigger:** When the ML model predicts an imminent margin degradation of over 80%.
+* **Action:** Programmatically triggers an on-chain escrow contract.
+* **Mechanism:** Converts Euro treasury assets to USD Coin (USDC) and locks the settlement rate with Asian suppliers instantly.
+* **Value:** Bypasses traditional SWIFT payment latencies (3-5 business days) and mitigates severe intra-week foreign exchange fluctuations.
 
-Because client-side fetch requests to banking domains often fail due to CORS policies, the `fetchUrlWithFallback` methodology iterates sequentially over numerous proxy gateways natively. If one proxy errors or times out, the system routes the payload safely to the next.
+---
 
-**The Priority Chain:**
-1. Direct HTTPS execution (Attempted selectively where possible)
-2. `https://corsproxy.io/?`
-3. `https://api.codetabs.com/v1/proxy?quest=`
-4. `https://api.allorigins.win/raw?url=` / `get?url=`
-5. `https://thingproxy.freeboard.io/fetch/`
+## 🏗️ System Architecture & Repository Structure (The 4 Blocs)
 
-## 5. Built-in Analytics & Verification Engine
+The project is structured around the 4 core competencies of the French AI Architect certification (RNCP 38777):
 
-The architecture natively checks the validity of incoming rates. It features a specific testing interface (mimicking Python-equivalent live checks) designed to inspect:
+### 📂 `/bloc1_governance` (Data Governance)
+Ensures data integrity, regulatory compliance (GDPR), and security across the supply chain data lifecycle.
+* **Artifacts:** Data Governance Policy, Data Dictionary (RACI), Quality SLA definitions.
+* **Focus:** PII obfuscation, access controls, and validation rules for inbound FX/Logistics data.
 
-* **Verification Status:** Tags if a route is "Live", "Stale", "Proxy", or an "Official Peg".
-* **Anomaly Detection:** Flags warnings directly on the UI if a returned currency value breaks normal thresholds, or if Central Banks have failed to publish data for the requested date.
-* **Fxtop Cross-reference:** Interlinks queries closely with Fxtop DB endpoints for calibration and external sanity checks.
+### 📂 `/bloc2_architecture` (IT Architecture & Infrastructure)
+The foundational IT infrastructure designed for scalability and global resilience.
+* **Artifacts:** PostgreSQL Star Schema (Fact/Dim tables), Docker definitions (`docker-compose`), Terraform IaC.
+* **Focus:** Building a robust Data Warehouse to centralize isolated logistics and finance data silos.
+
+### 📂 `/bloc3_pipelines` (Data Engineering & ETL)
+Automated data ingestion from disparate architectural endpoints.
+* **Artifacts:** Apache Airflow DAGs (`auroratech_pipeline.py`).
+* **Focus:** Extracting live FX via REST APIs, pulling freight forwarder data via SFTP, and transforming it for the ML models.
+
+### 📂 `/bloc4_ai_solutions` (Machine Learning & MLOps)
+The predictive engine and operationalized AI services.
+* **Artifacts:** `RandomForestClassifier` training scripts, FastAPI real-time inference server (`/predict`), Streamlit Executive Dashboard.
+* **Focus:** Serving real-time margin risk predictions via API and monitoring deployed model metrics (MLOps).
+
+---
+
+## ⚙️ Quick Start & Installation
+
+To boot up the core pipeline and interface locally:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/auroratech-repo.git
+cd auroratech-repo
+
+# 2. Boot up the infrastructure (PostgreSQL, FastAPI, Dashboard)
+cd bloc2_architecture
+docker-compose up -d --build
+
+# 3. Access the interfaces
+# • FastAPI Swagger UI: http://localhost:8000/docs
+# • Executive Dashboard: http://localhost:8501
+```
