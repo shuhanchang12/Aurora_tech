@@ -1,0 +1,18 @@
+Table_Name,Column_Name,Data_Type,Description,Constraints
+dim_date,date_key,DATE,Primary key for date dimension,NOT NULL PRIMARY KEY
+dim_date,year,INTEGER,Year component of the date,NOT NULL
+dim_date,month,INTEGER,Month component of the date,NOT NULL
+dim_date,day,INTEGER,Day component of the date,NOT NULL
+dim_date,quarter,INTEGER,Quarter of the year (1-4),NOT NULL
+dim_vendor,vendor_id,VARCHAR(50),Unique identifier for the component vendor,NOT NULL PRIMARY KEY
+dim_vendor,vendor_name,VARCHAR(100),Full name of the vendor,NOT NULL
+dim_vendor,component_type,VARCHAR(50),Type of component supplied (e.g. GPU SoC),NOT NULL
+fact_chromebook_margin_risk,id,SERIAL,Surrogate primary key,NOT NULL PRIMARY KEY
+fact_chromebook_margin_risk,date_key,DATE,Foreign key to dim_date,NOT NULL REFERENCES dim_date
+fact_chromebook_margin_risk,vendor_id,VARCHAR(50),Foreign key to dim_vendor,NOT NULL
+fact_chromebook_margin_risk,eur_to_usd,DECIMAL(10;4),Euro to USD exchange rate,NOT NULL
+fact_chromebook_margin_risk,eur_to_twd,DECIMAL(10;4),Euro to TWD exchange rate,NOT NULL
+fact_chromebook_margin_risk,component_delay_days,INTEGER,Delay in component arrival in days,NOT NULL
+fact_chromebook_margin_risk,transport_mode,VARCHAR(50),Mode of transport (Sea Freight Air),NOT NULL
+fact_chromebook_margin_risk,freight_cost_eur,DECIMAL(10;2),Unit freight cost in EUR,NOT NULL
+fact_chromebook_margin_risk,margin_drop_label,INTEGER,Binary target: 1 if margin drops dangerously 0 otherwise,NOT NULL

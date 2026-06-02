@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloc 1: Governance Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .log-entry { animation: fadeInRight 0.3s ease-out forwards; }
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-8 flex items-center justify-center min-h-screen font-sans">
+
+    <div class="bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-2xl w-full max-w-5xl">
+        <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-emerald-500 text-xl"></i>
+                <h3 class="text-lg font-bold text-white">Interactive RBAC Simulator</h3>
+            </div>
+            <div class="text-xs text-slate-400">Zero-Trust Enterprise Policy</div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-0">
+            <!-- Left Panel -->
+            <div class="p-6 border-r border-slate-700 bg-slate-800/50">
+                <h4 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">1. Assume User Role</h4>
+                <div class="flex gap-3 mb-8" id="role-buttons">
+                    <button class="flex-1 py-2 px-3 rounded-md text-sm font-medium border transition-all role-btn active bg-emerald-500/20 border-emerald-500/50 text-emerald-400" data-role="Finance">Finance</button>
+                    <button class="flex-1 py-2 px-3 rounded-md text-sm font-medium border transition-all role-btn bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700" data-role="Logistics">Logistics</button>
+                    <button class="flex-1 py-2 px-3 rounded-md text-sm font-medium border transition-all role-btn bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700" data-role="Admin">Admin</button>
+                </div>
+
+                <h4 class="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">2. Attempt Database Operation</h4>
+                <div class="space-y-3">
+                    <button onclick="attemptAction('READ_FX')" class="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-500 transition-colors text-left group">
+                        <div>
+                            <div class="text-sm font-medium text-slate-200">Read Margin Data</div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">SELECT * FROM fact_margin_risk</div>
+                        </div>
+                        <i class="fa-solid fa-key text-slate-500 group-hover:text-blue-400"></i>
+                    </button>
+                    <button onclick="attemptAction('UPDATE_LOGISTICS')" class="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-500 transition-colors text-left group">
+                        <div>
+                            <div class="text-sm font-medium text-slate-200">Update Logistics</div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">UPDATE dim_chromebook_vendor SET...</div>
+                        </div>
+                        <i class="fa-solid fa-key text-slate-500 group-hover:text-amber-400"></i>
+                    </button>
+                     <button onclick="attemptAction('EDIT_FX')" class="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-slate-500 transition-colors text-left group">
+                        <div>
+                            <div class="text-sm font-medium text-slate-200">Modify Immutable FX Rates</div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">UPDATE fact_margin_risk SET eur_to_usd...</div>
+                        </div>
+                        <i class="fa-solid fa-key text-slate-500 group-hover:text-rose-400"></i>
+                    </button>
+                    <button onclick="attemptAction('DROP_TABLES')" class="w-full flex items-center justify-between p-3 rounded-lg bg-slate-800 border border-slate-700 hover:border-red-900/50 transition-colors text-left group">
+                        <div>
+                            <div class="text-sm font-medium text-slate-200">Drop Database</div>
+                            <div class="text-xs text-slate-500 font-mono mt-1">DROP TABLE fact_margin_risk;</div>
+                        </div>
+                        <i class="fa-solid fa-triangle-exclamation text-slate-500 group-hover:text-rose-500"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="p-6 bg-slate-900 flex flex-col h-[450px]">
+                <div class="flex items-center justify-between mb-4">
+                    <h4 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Live Audit Pipeline</h4>
+                    <i class="fa-solid fa-database text-slate-500"></i>
+                </div>
+                <div class="flex-1 overflow-auto space-y-3 pr-2" id="audit-log">
+                    <div class="h-full flex flex-col items-center justify-center text-slate-600 space-y-3" id="empty-state">
+                        <i class="fa-solid fa-lock text-3xl opacity-50"></i>
+                        <span class="text-sm">Awaiting database queries...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'Finance';
+        
+        // Handle role switching
+        document.querySelectorAll('.role-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.role-btn').forEach(b => {
+                    b.className = "flex-1 py-2 px-3 rounded-md text-sm font-medium border transition-all role-btn bg-slate-800 border-slate-700 text-slate-400 hover:bg-slate-700";
+                });
+                const target = e.target;
+                target.className = "flex-1 py-2 px-3 rounded-md text-sm font-medium border transition-all role-btn active bg-emerald-500/20 border-emerald-500/50 text-emerald-400";
+                currentRole = target.getAttribute('data-role');
+            });
+        });
+
+        function attemptAction(actionCode) {
+            let success = false;
+            let message = '';
+            let actionName = '';
+
+            if (actionCode === 'READ_FX') {
+                actionName = 'View Financial Margin Risk';
+                if (currentRole === 'Finance' || currentRole === 'Admin') {
+                    success = true; message = 'Success: Margin risk data retrieved successfully.';
+                } else {
+                    success = false; message = 'Access Denied: Logistics role cannot view financial margins.';
+                }
+            } else if (actionCode === 'UPDATE_LOGISTICS') {
+                actionName = 'Update Shipping Schedules';
+                if (currentRole === 'Logistics' || currentRole === 'Admin') {
+                    success = true; message = 'Success: Shipping transit schedules updated.';
+                } else {
+                    success = false; message = 'Access Denied: Finance role cannot alter physical logistics.';
+                }
+            } else if (actionCode === 'EDIT_FX') {
+                actionName = 'Modify FX Exchange Rates';
+                if (currentRole === 'Admin') {
+                    success = true; message = 'Success: System configuration applied to FX settings.';
+                } else {
+                    success = false; message = 'Access Denied: Immutable data. Only Admins can modify raw schemas.';
+                }
+            } else if (actionCode === 'DROP_TABLES') {
+                actionName = 'Delete Database Tables';
+                if (currentRole === 'Admin') {
+                    success = true; message = 'Success: Database table forcefully dropped (Admin Privilege).';
+                } else {
+                    success = false; message = 'Access Denied: Insufficient privileges to drop tables.';
+                }
+            }
+
+            logResult(actionName, success, message);
+        }
+
+        function logResult(action, success, message) {
+            const logContainer = document.getElementById('audit-log');
+            const emptyState = document.getElementById('empty-state');
+            if(emptyState) emptyState.remove();
+
+            const timeString = new Date().toLocaleTimeString();
+            const bgClass = success ? "bg-emerald-900/20 border-emerald-800/50" : "bg-rose-900/20 border-rose-800/50";
+            const icon = success ? `<i class="fa-solid fa-circle-check text-emerald-500 mt-0.5"></i>` : `<i class="fa-solid fa-circle-xmark text-rose-500 mt-0.5"></i>`;
+            const headerColor = success ? "text-emerald-400" : "text-rose-400";
+            const statusText = success ? "GRANTED" : "DENIED";
+
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry p-3 rounded-lg border text-sm ${bgClass}`;
+            logEntry.innerHTML = `
+                <div class="flex items-start gap-3">
+                    ${icon}
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold cursor-default ${headerColor}">${statusText}</span>
+                            <span class="text-slate-500 text-xs">${timeString}</span>
+                        </div>
+                        <p class="text-slate-300 font-medium mb-1">${action}</p>
+                        <p class="text-slate-400 text-xs">${message}</p>
+                    </div>
+                </div>
+            `;
+            
+            logContainer.insertBefore(logEntry, logContainer.firstChild);
+
+            // Keep only last 5 logs
+            if(logContainer.children.length > 5) {
+                logContainer.removeChild(logContainer.lastChild);
+            }
+        }
+    </script>
+</body>
+</html>
