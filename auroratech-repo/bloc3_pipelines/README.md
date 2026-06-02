@@ -38,11 +38,11 @@ graph TD
     V1 -->|Validation Passed| L1
     V1 -->|Validation Failed| Alert[fa:fa-envelope Trigger Alert & Halt Pipeline]
     
-    style E1 fill:#e1f5fe,stroke:#0288d1
-    style E2 fill:#e1f5fe,stroke:#0288d1
-    style T2 fill:#fff3e0,stroke:#f57c00
-    style V1 fill:#f3e5f5,stroke:#7b1fa2
-    style L1 fill:#e8f5e9,stroke:#388e3c
+    style E1 fill:#e1f5fe,stroke:#0288d1,color:#000000
+    style E2 fill:#e1f5fe,stroke:#0288d1,color:#000000
+    style T2 fill:#fff3e0,stroke:#f57c00,color:#000000
+    style V1 fill:#f3e5f5,stroke:#7b1fa2,color:#000000
+    style L1 fill:#e8f5e9,stroke:#388e3c,color:#000000
     style Alert fill:#ffebee,stroke:#d32f2f,color:#d32f2f
 ```
 

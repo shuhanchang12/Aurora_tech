@@ -41,8 +41,8 @@ graph TD
     G --> K[Approved: Load to Data Warehouse]
     
     style B fill:#f9f,stroke:#333,stroke-width:2px
-    style J fill:#ffcccc,stroke:#cc0000,stroke-width:2px
-    style K fill:#ccffcc,stroke:#00cc00,stroke-width:2px
+    style J fill:#ffcccc,stroke:#cc0000,stroke-width:2px,color:#000000
+    style K fill:#ccffcc,stroke:#00cc00,stroke-width:2px,color:#000000
 ```
 
 ### 2. RACI Matrix (Data Ownership)

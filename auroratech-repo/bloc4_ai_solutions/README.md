@@ -19,14 +19,14 @@ sequenceDiagram
     participant Model as Random Forest (.pkl)
     participant DW as PostgreSQL Data Warehouse
 
-    rect rgb(240, 248, 255)
+    rect rgba(255, 255, 255, 0.1)
         Note over DW, Model: 📦 Phase 1: Offline Training (src/train_model.py)
         DW->>Model: Extract Historical Fact/Dim data
         Model->>Model: Train RandomForestClassifier
         Model->>Model: Serialize to 'auroratech_chromebook_model.pkl'
     end
 
-    rect rgb(245, 255, 250)
+    rect rgba(255, 255, 255, 0.05)
         Note over Client, Model: 🚀 Phase 2: Real-Time Inference (api/app.py)
         Client->>FastAPI: POST /predict <br/>{eur_to_usd: 1.08, delay_days: 12}
         FastAPI->>Model: Load .pkl & forward features
